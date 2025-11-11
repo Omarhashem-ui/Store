@@ -1,0 +1,31 @@
+# Ignore all bin and obj folders in any project
+**/bin/
+**/obj/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*appsettings.json
+
+# VS cache and temp
+.vs/
+*.log
+
+# NuGet packages
+**/packages/*
+
+# Node.js
+node_modules/
+
+# Others
+*.dbmdl
+*.mdf
+*.ldf
+*.pfx
+*.publishsettings
+*.cache
+*.tmp
+*.bak
