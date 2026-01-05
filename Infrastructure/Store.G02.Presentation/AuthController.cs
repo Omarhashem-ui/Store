@@ -13,8 +13,13 @@ namespace Store.G02.Presentation
 {
     [ApiController]
     [Route("api/[Controller]")]
-    public class AuthController(IServicesManager _servicesManager) : ControllerBase
+    public class AuthController: ControllerBase
     {
+        private readonly IServicesManager _servicesManager;
+        public AuthController(IServicesManager servicesManager)
+        {
+            _servicesManager = servicesManager;
+        }
         [HttpPost ("login")]
         public async Task<IActionResult> Login(LoginRequest request)
         {
@@ -61,4 +66,4 @@ namespace Store.G02.Presentation
         }
 
     }
-}//test\\
+}

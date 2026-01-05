@@ -7,6 +7,7 @@ using Store.G02.Domain.Contracts;
 using Store.G02.Domain.Entities.Identity;
 using Store.G02.Persistence;
 using Store.G02.Persistence.Identity;
+using Store.G02.Presentation;
 using Store.G02.Services;
 using Store.G02.Shared.AuthDto;
 using Store.G02.Shared.ErrorModels;
@@ -24,7 +25,7 @@ namespace Store.G02.Web.Extansions
             services.AddWebServices();
             services.AddIdentityServices();
             services.Configure<JwtOptions>(configuration.GetSection("JWTOption"));
-           services.ConfigureApiBehaviorOption();
+            services.ConfigureApiBehaviorOption();
             services.AddAuthenticationService(configuration);
 
 
@@ -55,9 +56,11 @@ namespace Store.G02.Web.Extansions
         {
             // Add services to the container.
 
-             services.AddControllers();
+            services.AddControllers()
+            .AddApplicationPart(typeof(AuthController).Assembly);
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-             services.AddEndpointsApiExplorer();
+            services.AddEndpointsApiExplorer();
              services.AddSwaggerGen();
             return services;
         }
@@ -92,31 +95,37 @@ namespace Store.G02.Web.Extansions
             });
             return services;
         }
-       
 
 
-        public static async Task<WebApplication> ConfiguareMiddleWaresAsync (this WebApplication app)
+
+        public static async Task<WebApplication> ConfiguareMiddleWaresAsync(this WebApplication app)
         {
-            await app.SeedData();
-
-            // Configure the HTTP request pipeline.
+            
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Store API v1");
+                });
             }
             app.UseGlobalErrorHandling();
             app.UseStaticFiles();
-
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
-           
-
-
             app.MapControllers();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbinit = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+                await dbinit.InitializeAsync();
+                await dbinit.IdentityInitializeAsync();
+            }
+
             return app;
         }
+
 
         private static WebApplication UseGlobalErrorHandling(this WebApplication app)
         {

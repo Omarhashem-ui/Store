@@ -11,8 +11,14 @@ namespace Store.G02.Presentation
 {
     [ApiController]
     [Route("api/[Controller]")]
-    public class BasketController(IServicesManager _servicesManager) : ControllerBase
+    public class BasketController : ControllerBase
+
     {
+        private readonly IServicesManager _servicesManager;
+        public BasketController(IServicesManager servicesManager)
+        {
+            _servicesManager = servicesManager;
+        }
         [HttpGet]
         public async Task<IActionResult> GetBasketById(string id)
         {

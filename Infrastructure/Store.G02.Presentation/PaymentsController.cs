@@ -12,8 +12,13 @@ namespace Store.G02.Presentation
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class PaymentsController(IServicesManager _servicesManager) : ControllerBase
+    public class PaymentsController : ControllerBase
     {
+        private readonly IServicesManager _servicesManager;
+        public PaymentsController(IServicesManager servicesManager)
+        {
+            _servicesManager = servicesManager;
+        }
         [HttpPost("{basketId}")]
         public async Task<IActionResult> CreatePaymentIntent(string basketId)
         {
@@ -21,8 +26,8 @@ namespace Store.G02.Presentation
             return Ok();
         }
        
-        [Route("webhook")]
-        [HttpPost]
+        
+        
         [HttpPost("webhook")]
         public async Task<IActionResult> Webhook()
         {
@@ -38,7 +43,7 @@ namespace Store.G02.Presentation
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"⚠️ Webhook error: {ex.Message}");
+                Console.WriteLine($" Webhook error: {ex.Message}");
                 return BadRequest();
             }
 
@@ -49,11 +54,11 @@ namespace Store.G02.Presentation
 
             if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
             {
-                await _servicesManager.orderServices.UpdateOrderStatusAsync(paymentIntent.Id, OrderStatus.PaymentSucceses);
+                await _servicesManager.OrderServices.UpdateOrderStatusAsync(paymentIntent.Id, OrderStatus.PaymentSucceses);
             }
             else if (stripeEvent.Type == EventTypes.PaymentIntentPaymentFailed)
             {
-                await _servicesManager.orderServices.UpdateOrderStatusAsync(paymentIntent.Id, OrderStatus.PaymentFailed);
+                await _servicesManager.OrderServices.UpdateOrderStatusAsync(paymentIntent.Id, OrderStatus.PaymentFailed);
             }
             else
             {

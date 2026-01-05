@@ -14,8 +14,13 @@ namespace Store.G02.Presentation
 {
     [ApiController]
     [Route("api/[Controller]")]
-    public class ProductsController(IServicesManager _servicesManager) : ControllerBase
+    public class ProductsController : ControllerBase
     {
+        private readonly IServicesManager _servicesManager;
+        public ProductsController(IServicesManager servicesManager)
+        {
+            _servicesManager = servicesManager;
+        }
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK,Type =typeof(PaginationResponse<ProductResponse>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest,Type =typeof(ErrorDetails))]

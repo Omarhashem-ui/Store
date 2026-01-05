@@ -16,27 +16,15 @@ using System.Threading.Tasks;
 
 namespace Store.G02.Services
 {
-    public class OrderServices(IUnitOfWork _unitOfWork,IMapper _mapper,IBasketRepository _basketRepository) : IOrderServices
+    public class OrderServices(IUnitOfWork _unitOfWork,IMapper _mapper,IServicesManager _servicesManager) : IOrderServices
     {
+       
         public async Task<OrderResponse> GetOrderAsync(OrderRequest request, string userEmail)
         {
             var shippingAddress = _mapper.Map<OrderAddress>(request.ShipToAddress);
 
-            var deliverMethod = await _unitOfWork.GetRepository<int, DeliveryMethod>().GetAsync(request.DeliverMethodId);
-            if(deliverMethod is null) throw new DeliveryMethodNotFoundExcceptions(request.DeliverMethodId);
-
-           var basket = await _basketRepository.GetBasketAsync(request.BasketId);
-            if (basket is null ) throw new BasketNotFoundExceptions(request.BasketId);
-            var orderItems = new List<OrderItem>();
-            foreach (var item in basket.Items) 
-            {
-                var product =await _unitOfWork.GetRepository<int, Product>().GetAsync(item.Id);
-                if (product is null) throw new ProductNotFoundException(item.Id);
-                if(product.Price != item.Price) item.Price = product.Price;
-                var productInOrderItem = new ProductInOrderItem(item.Id, item.ProductName, item.PictureUrl);
-                var orderItem = new OrderItem(productInOrderItem, item.Price, item.Quantity);
-                orderItems.Add(orderItem);
-            }
+           var deliverMethod =await _servicesManager.DeliveryMethodService.GetMethodByIdAsync(request.DeliverMethodId);
+            var (basket,orderItems) =await _servicesManager.BasketOrderService.GetOrderItemsAsync(request);
             var subTotal = orderItems.Sum(OI=>OI.Price*OI.Quantity);
             var spec = new OrderWithPaymentIntentSpecification(basket.PaymentIntentId);
             var existOrder = await _unitOfWork.GetRepository<Guid, Order>().GetAsync(spec);

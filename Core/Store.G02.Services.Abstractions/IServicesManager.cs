@@ -13,7 +13,9 @@ namespace Store.G02.Services.Abstractions
          IBasketServices BasketServices { get;} 
          ICacheServices CacheServices { get;} 
          IAuthServices AuthServices { get;} 
-         IOrderServices orderServices { get;} 
+         IOrderServices OrderServices { get;} 
          IPaymentService PaymentService { get;} 
+         IBasketOrderService BasketOrderService { get; }
+        IDeliveryMethodService DeliveryMethodService { get; }
     }
 }
